@@ -30,6 +30,7 @@ file (GLOB WebIfcAPI web-ifc-wasm.cpp)
 file (GLOB WebIfcUtility utility/*.cpp)
 file (GLOB WebIfcTestSourceFiles test/*.cpp)
 file (GLOB WebIfcTestingMain web-ifc-test.cpp)
+file (GLOB IfcGeomServerMain IfcGeomServer.cpp)
 
 #download the external projects and save their paths
 Message("Downloading FastFloat")
@@ -144,5 +145,7 @@ if (NOT EMSCRIPTEN)
 		target_compile_options(web-ifc PUBLIC "-DDEBUG_DUMP_SVG")
 	endif()
 	
+	add_executable (ifc-geom-server ${WebIfcManager} ${WebIfcSchema} ${WebIfcParsing} ${WebIfcUtility} ${WebIfcGeometry} ${IfcGeomServerMain} "./test/io_helpers.cpp")
+	param_setter(ifc-geom-server)
 	
 endif()
