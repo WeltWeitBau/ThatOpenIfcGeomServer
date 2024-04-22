@@ -13,11 +13,16 @@
 namespace webifc::geometry
 {
 
-  IfcGeometryLoader::IfcGeometryLoader(const webifc::parsing::IfcLoader &loader, const webifc::schema::IfcSchemaManager &schemaManager, uint16_t circleSegments)
+  IfcGeometryLoader::IfcGeometryLoader(const webifc::parsing::IfcLoader& loader, const webifc::schema::IfcSchemaManager& schemaManager, uint16_t circleSegments)
+      : IfcGeometryLoader(loader, schemaManager, circleSegments, true) {}
+
+  IfcGeometryLoader::IfcGeometryLoader(const webifc::parsing::IfcLoader& loader, const webifc::schema::IfcSchemaManager& schemaManager, uint16_t circleSegments, bool applyScaling)
       : _loader(loader), _schemaManager(schemaManager), _relVoidRel(PopulateRelVoidsRelMap()), _relVoids(PopulateRelVoidsMap()), _relAggregates(PopulateRelAggregatesMap()),
-        _relElementAggregates(PopulateRelElementAggregatesMap()), _styledItems(PopulateStyledItemMap()), _relMaterials(PopulateRelMaterialsMap()), _materialDefinitions(PopulateMaterialDefinitionsMap()), _circleSegments(circleSegments)
+      _relElementAggregates(PopulateRelElementAggregatesMap()), _styledItems(PopulateStyledItemMap()), _relMaterials(PopulateRelMaterialsMap()), _materialDefinitions(PopulateMaterialDefinitionsMap()), _circleSegments(circleSegments)
   {
-    ReadLinearScalingFactor();
+      if (applyScaling) {
+          ReadLinearScalingFactor();
+      }
   }
 
   IfcCrossSections IfcGeometryLoader::GetCrossSections2D(uint32_t expressID) const

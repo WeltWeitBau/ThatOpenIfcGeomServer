@@ -6,7 +6,6 @@
 #include <string>
 #include <cmath>
 #include <algorithm>
-#include <format>
 #include <fast_float/fast_float.h>
 #include <spdlog/spdlog.h>
 #include "IfcLoader.h"
@@ -342,7 +341,7 @@ namespace webifc::parsing {
 
    void IfcLoader::PushDouble(double input)
    {             
-      std::string numberString = std::format("{}", input);
+      std::string numberString = std::to_string(input);
       size_t eLoc = numberString.find_first_of('e');
       if (eLoc != std::string::npos) numberString[eLoc]='E';
       else if (std::floor(input) == input) numberString+='.';

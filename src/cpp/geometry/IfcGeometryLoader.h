@@ -26,6 +26,7 @@ namespace webifc::geometry
   {
   public:
     IfcGeometryLoader(const webifc::parsing::IfcLoader &loader,const webifc::schema::IfcSchemaManager &schemaManager,uint16_t circleSegments);
+    IfcGeometryLoader(const webifc::parsing::IfcLoader& loader, const webifc::schema::IfcSchemaManager& schemaManager, uint16_t circleSegments, bool applyScaling);
     std::array<glm::dvec3,2> GetAxis1Placement(const uint32_t expressID) const;
     glm::dmat3 GetAxis2Placement2D(const uint32_t expressID) const;
     glm::dmat4 GetLocalPlacement(const uint32_t expressID, glm::dvec3 vector = glm::dvec3(1)) const;

@@ -393,15 +393,16 @@ protected:
 
 			for (int i = 0; i < vertexData.size(); i += 6) {
 				glm::vec4 position(vertexData.at(i), vertexData.at(i + 1), vertexData.at(i + 2), 1.0f);
+				glm::vec4 normal(vertexData.at(i + 3), vertexData.at(i + 4), vertexData.at(i + 5), 1.0f);
 				auto untransformedPosition = inverseTransformation * currentTransformation * position;
 
 				vertices.push_back(untransformedPosition.x);
 				vertices.push_back(untransformedPosition.y);
 				vertices.push_back(untransformedPosition.z);
 
-				normals.push_back(vertexData.at(i + 3));
-				normals.push_back(vertexData.at(i + 4));
-				normals.push_back(vertexData.at(i + 5));
+				normals.push_back(normal.x);
+				normals.push_back(-normal.z);
+				normals.push_back(normal.y);
 			}
 
 			auto color = geometry.color;
@@ -604,10 +605,12 @@ int main() {
 			IfcModel m;
 
 #ifdef STANDALONE_TEST
-			std::ifstream fileStream("D:/andreas/BIM/BIMServerDevHome/home183/debug/2024-04-16-18-53-52 (117113_Document.1 (1).ifc)/IfcBuildingElementPart-60.ifc");
+			//std::ifstream fileStream("D:/andreas/BIM/BIMServerDevHome/home183/debug/2024-04-16-18-53-52 (117113_Document.1 (1).ifc)/IfcBuildingElementPart-60.ifc");
 			//std::ifstream fileStream("C:/Users/andreas/Downloads/Wohnhaus/Wohnhaus_1.ifc");
 			//std::ifstream fileStream("C:/Users/andreas/Downloads/Tür_2.ifc");
 			//std::ifstream fileStream("C:/Users/andreas/Desktop/Test Dateien/ifc/stuetze.ifc");
+			//std::ifstream fileStream("C:/Users/andreas/Downloads/Technical_School_3.ifc");
+			std::ifstream fileStream("./Technical_School_3.ifc");
 			if (fileStream.is_open()) {
 				m.read(fileStream);
 			}
@@ -633,7 +636,7 @@ int main() {
 				0, 0, 0, 1,
 			};
 
-			geometryProcessor = new webifc::geometry::IfcGeometryProcessor(*loader, schemaManager, set.CIRCLE_SEGMENTS, set.COORDINATE_TO_ORIGIN, set.OPTIMIZE_PROFILES);
+			geometryProcessor = new webifc::geometry::IfcGeometryProcessor(*loader, schemaManager, set.CIRCLE_SEGMENTS, set.COORDINATE_TO_ORIGIN, set.OPTIMIZE_PROFILES, false);
 			geometryProcessor->SetTransformation(reverseNormalizeIfc);
 
 			iterator = new IfcGeomIterator(&schemaManager, loader, geometryProcessor);

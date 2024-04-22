@@ -16,10 +16,14 @@
 #include "operations/mesh_utils.h"
 #include <fuzzy/fuzzy-bools.h>
 
-namespace webifc::geometry
+namespace webifc::geometry 
 {
-    IfcGeometryProcessor::IfcGeometryProcessor(const webifc::parsing::IfcLoader &loader, const webifc::schema::IfcSchemaManager &schemaManager, uint16_t circleSegments, bool coordinateToOrigin, bool optimizeprofiles)
-        : _geometryLoader(loader, schemaManager, circleSegments), _loader(loader), _schemaManager(schemaManager), _coordinateToOrigin(coordinateToOrigin), _optimize_profiles(optimizeprofiles), _circleSegments(circleSegments)
+
+    IfcGeometryProcessor::IfcGeometryProcessor(const webifc::parsing::IfcLoader& loader, const webifc::schema::IfcSchemaManager& schemaManager, uint16_t circleSegments, bool coordinateToOrigin, bool optimizeprofiles)
+        : IfcGeometryProcessor(loader, schemaManager, circleSegments, coordinateToOrigin, optimizeprofiles, true) {}
+
+    IfcGeometryProcessor::IfcGeometryProcessor(const webifc::parsing::IfcLoader &loader, const webifc::schema::IfcSchemaManager &schemaManager, uint16_t circleSegments, bool coordinateToOrigin, bool optimizeprofiles, bool applyScaling)
+        : _geometryLoader(loader, schemaManager, circleSegments, applyScaling), _loader(loader), _schemaManager(schemaManager), _coordinateToOrigin(coordinateToOrigin), _optimize_profiles(optimizeprofiles), _circleSegments(circleSegments)
     {
         expressIdCyl = _loader.GetMaxExpressId() + 5;
         expressIdRect = _loader.GetMaxExpressId() + 6;
