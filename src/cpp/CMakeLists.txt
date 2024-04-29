@@ -127,6 +127,10 @@ endif()
 
 if (NOT EMSCRIPTEN)
 
+	if (MSVC)
+		set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+	endif ()
+
 	#build parameters for web-ifc-test
 	add_executable (web-ifc-test ${WebIfcManager} ${WebIfcSchema} ${WebIfcParsing} ${WebIfcUtility} ${WebIfcGeometry} ${WebIfcTestSourceFiles})
 	param_setter(web-ifc-test)

@@ -1,12 +1,12 @@
 //#define STANDALONE_TEST
-// Disable Logging so nothing unwanted gets written to stdout
-#define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_OFF
 
 #include <iostream>
 #include <sstream>
 #include <fstream>
 #include <iomanip>
 #include <map>
+// Disable Logging so nothing unwanted gets written to stdout
+#define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_OFF
 #include <spdlog/spdlog.h>
 
 #include "parsing/IfcLoader.h"
@@ -555,6 +555,9 @@ struct LoaderSettings
 };
 
 int main() {
+	// Disable Logging so nothing unwanted gets written to stdout
+	spdlog::set_level(spdlog::level::off);
+
 	// Redirect stdout to this stream, so that involuntary 
 	// writes to stdout do not interfere with our protocol.
 	std::ostringstream oss;
@@ -605,12 +608,7 @@ int main() {
 			IfcModel m;
 
 #ifdef STANDALONE_TEST
-			//std::ifstream fileStream("D:/andreas/BIM/BIMServerDevHome/home183/debug/2024-04-16-18-53-52 (117113_Document.1 (1).ifc)/IfcBuildingElementPart-60.ifc");
-			//std::ifstream fileStream("C:/Users/andreas/Downloads/Wohnhaus/Wohnhaus_1.ifc");
-			//std::ifstream fileStream("C:/Users/andreas/Downloads/Tür_2.ifc");
-			//std::ifstream fileStream("C:/Users/andreas/Desktop/Test Dateien/ifc/stuetze.ifc");
-			//std::ifstream fileStream("C:/Users/andreas/Downloads/Technical_School_3.ifc");
-			std::ifstream fileStream("./Technical_School_3.ifc");
+			std::ifstream fileStream("D:/andreas/BIM/BIMServerDevHome/home183/debug/2024-04-22-19-07-58 (0000874100000381 A-2M NAGP 000001 Räume_1BA.ifc)/IfcCovering-error-1.ifc");
 			if (fileStream.is_open()) {
 				m.read(fileStream);
 			}
