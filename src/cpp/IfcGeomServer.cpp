@@ -370,7 +370,7 @@ protected:
 
 		writeTransformation(globalTransformation, s);
 
-		glm::dmat4 inverseTransformation = glm::inverse(globalTransformation);
+		auto inverseTransformation = glm::inverse(globalTransformation);
 
 		// TODO
 		const std::string& representation_id = "Test Representation ID";
@@ -387,22 +387,26 @@ protected:
 
 		for (auto &geometry : ifcElement->flatMesh.geometries) {
 			auto currentTransformation = geometry.transformation;
+			auto combinedTransformation = inverseTransformation * currentTransformation;
+			auto combinedNormalTransformation = glm::transpose(glm::inverse(combinedTransformation)); // according to: https://www.scratchapixel.com/lessons/mathematics-physics-for-computer-graphics/geometry/transforming-normals.html
+
 			auto &flatGeom = geometryProcessor->GetGeometry(geometry.geometryExpressID);
 			auto &vertexData = flatGeom.vertexData;
-			uint32_t indexOffset = vertices.size() / 3;
+			auto indexOffset = vertices.size() / 3;
 
 			for (int i = 0; i < vertexData.size(); i += 6) {
 				glm::vec4 position(vertexData.at(i), vertexData.at(i + 1), vertexData.at(i + 2), 1.0f);
 				glm::vec4 normal(vertexData.at(i + 3), vertexData.at(i + 4), vertexData.at(i + 5), 1.0f);
-				auto untransformedPosition = inverseTransformation * currentTransformation * position;
+				auto untransformedPosition = combinedTransformation * position;
+				auto untransformedNormal = combinedNormalTransformation * normal;
 
 				vertices.push_back(untransformedPosition.x);
 				vertices.push_back(untransformedPosition.y);
 				vertices.push_back(untransformedPosition.z);
 
-				normals.push_back(normal.x);
-				normals.push_back(-normal.z);
-				normals.push_back(normal.y);
+				normals.push_back(untransformedNormal.x);
+				normals.push_back(untransformedNormal.y);
+				normals.push_back(untransformedNormal.z);
 			}
 
 			auto color = geometry.color;
@@ -411,7 +415,7 @@ protected:
 				indices.push_back(index + indexOffset);
 			}
 
-			if (color.r != 1 || color.g != 1 || color.b != 1 || color.a == 1) {
+			if (color.r != -1 && color.g != -1 && color.b != -1 && color.a != -1) {
 				colors.push_back(color.r);
 				colors.push_back(color.g);
 				colors.push_back(color.b);
@@ -444,6 +448,17 @@ protected:
 		}
 
 		geometryProcessor->Clear();
+	}
+
+	glm::dmat4* extractRotation(glm::dmat4* tranformation) {
+		auto _transformation = *tranformation;
+		auto sx = glm::length(_transformation[0]);
+		auto sy = glm::length(_transformation[1]);
+		auto sz = glm::length(_transformation[2]);
+
+		auto currentRotation = new glm::dmat4(_transformation[0] / sx, _transformation[1] / sy, _transformation[2] / sz, glm::dvec4(0));
+
+		return currentRotation;
 	}
 
 public:
@@ -608,7 +623,7 @@ int main() {
 			IfcModel m;
 
 #ifdef STANDALONE_TEST
-			std::ifstream fileStream("D:/andreas/BIM/BIMServerDevHome/home183/debug/2024-04-22-19-07-58 (0000874100000381 A-2M NAGP 000001 Räume_1BA.ifc)/IfcCovering-error-1.ifc");
+			std::ifstream fileStream("C:/Users/andreas/Downloads/Tür_3.ifc");
 			if (fileStream.is_open()) {
 				m.read(fileStream);
 			}
@@ -634,8 +649,12 @@ int main() {
 				0, 0, 0, 1,
 			};
 
+			auto defaultColor = new glm::dvec4(-1.0);
+
 			geometryProcessor = new webifc::geometry::IfcGeometryProcessor(*loader, schemaManager, set.CIRCLE_SEGMENTS, set.COORDINATE_TO_ORIGIN, set.OPTIMIZE_PROFILES, false);
 			geometryProcessor->SetTransformation(reverseNormalizeIfc);
+			geometryProcessor->SetDefaultColor(defaultColor);
+
 
 			iterator = new IfcGeomIterator(&schemaManager, loader, geometryProcessor);
 			has_more = iterator->HasMore();

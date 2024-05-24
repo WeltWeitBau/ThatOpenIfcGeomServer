@@ -60,3 +60,5 @@ examples/nodejs/*.ifc
 tests/ifcfiles/private/*.ifc
 tests/ifcfiles/private/*.stl
 tests/ifcfiles/created.ifc
+/src/cpp/CMakeSettings.json
+/src/cpp/CMakeSettings.json
