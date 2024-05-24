@@ -145,7 +145,7 @@ namespace webifc::geometry
         mesh.expressID = expressID;
         mesh.hasColor = styledItemColor.has_value();
         if (!styledItemColor)
-            mesh.color = glm::dvec4(1.0);
+            mesh.color = _defaultColor; // skip color, if none is found
         else
             mesh.color = styledItemColor.value();
         mesh.transformation = glm::dmat4(1);
@@ -1516,7 +1516,7 @@ namespace webifc::geometry
 
         glm::dmat4 mat = glm::scale(glm::dvec3(_geometryLoader.GetLinearScalingFactor()));
 
-        AddComposedMeshToFlatMesh(flatMesh, composedMesh, _transformation * NormalizeIFC * mat);
+        AddComposedMeshToFlatMesh(flatMesh, composedMesh, _transformation * NormalizeIFC * mat, _defaultColor);
 
         return flatMesh;
     }
@@ -1846,4 +1846,7 @@ namespace webifc::geometry
         }
     }
 
+    void IfcGeometryProcessor::SetDefaultColor(glm::dvec4 *color) {
+        _defaultColor = glm::dvec4(color->r, color->g, color->b, color->a);
+    }
 }

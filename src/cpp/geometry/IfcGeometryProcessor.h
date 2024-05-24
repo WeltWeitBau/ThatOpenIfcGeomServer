@@ -35,6 +35,7 @@ namespace webifc::geometry
         std::array<double, 16> GetFlatCoordinationMatrix() const;
         glm::dmat4 GetCoordinationMatrix() const;
         void Clear();
+        void SetDefaultColor(glm::dvec4 *color);
         
         private:
         void AddFaceToGeometry(uint32_t expressID, IfcGeometry &geometry);
@@ -58,6 +59,7 @@ namespace webifc::geometry
         void ReadIndexedPolygonalFace(uint32_t expressID, std::vector<IfcBound3D> &bounds, const std::vector<glm::dvec3> &points);
         IfcGeometry predefinedCylinder;
         IfcGeometry predefinedCube;
+        glm::dvec4 _defaultColor = glm::dvec4(1.0);
   };
   
 }
