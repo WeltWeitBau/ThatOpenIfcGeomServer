@@ -108,48 +108,9 @@ function(PARAM_SETTER THE_EXECUTABLE)
 	endif()
 endfunction()
 
-if (EMSCRIPTEN)
-	#build parameters for web-ifc
-	add_executable (web-ifc ${WebIfcManager} ${WebIfcSchema} ${WebIfcParsing} ${WebIfcAPI} ${WebIfcUtility} ${WebIfcGeometry})
-	param_setter(web-ifc)
-	set_target_properties(web-ifc PROPERTIES LINK_FLAGS "${DEBUG_FLAG} --bind -flto --define-macro=REAL_T_IS_DOUBLE -s ALLOW_MEMORY_GROWTH=1 -s MAXIMUM_MEMORY=4GB -sSTACK_SIZE=5MB -s EXPORT_NAME=WebIFCWasm -s MODULARIZE=1 -s ENVIRONMENT=web")
+if (MSVC)
+	set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+endif ()
 
-	add_executable (web-ifc-node ${WebIfcManager} ${WebIfcSchema} ${WebIfcParsing} ${WebIfcAPI} ${WebIfcUtility} ${WebIfcGeometry})
-	param_setter(web-ifc-node)
-	set_target_properties(web-ifc-node PROPERTIES LINK_FLAGS "${DEBUG_FLAG} --bind -flto --define-macro=REAL_T_IS_DOUBLE -s ALLOW_MEMORY_GROWTH=1 -s MAXIMUM_MEMORY=4GB -sSTACK_SIZE=5MB -s EXPORT_NAME=WebIFCWasm -s MODULARIZE=1 ")
-
-	#multi-treaded versions
-	add_executable (web-ifc-mt ${WebIfcManager} ${WebIfcSchema} ${WebIfcParsing} ${WebIfcAPI} ${WebIfcUtility} ${WebIfcGeometry})
-	param_setter(web-ifc-mt)
-	target_compile_options(web-ifc-mt PUBLIC "-pthread")
-	set_target_properties(web-ifc-mt PROPERTIES LINK_FLAGS "${DEBUG_FLAG} -pthread -s PTHREAD_POOL_SIZE=navigator.hardwareConcurrency --bind -flto --define-macro=REAL_T_IS_DOUBLE -sSTACK_SIZE=5MB -s ALLOW_MEMORY_GROWTH=1 -s MAXIMUM_MEMORY=4GB -s EXPORT_NAME=WebIFCWasm -s MODULARIZE=1 -s ENVIRONMENT=web,worker")
-endif()
-
-if (NOT EMSCRIPTEN)
-
-	if (MSVC)
-		set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
-	endif ()
-
-	#build parameters for web-ifc-test
-	add_executable (web-ifc-test ${WebIfcManager} ${WebIfcSchema} ${WebIfcParsing} ${WebIfcUtility} ${WebIfcGeometry} ${WebIfcTestSourceFiles})
-	param_setter(web-ifc-test)
-	target_include_directories(web-ifc-test PUBLIC ${tinycpptest_SOURCE_DIR}/Sources)
-
-	add_test (web-ifc-test web-ifc-test)
-	set_tests_properties(web-ifc-test PROPERTIES LABELS "web-ifc")
-	
-	#build parameters for web-ifc in testing environment
-	add_executable (web-ifc ${WebIfcManager} ${WebIfcSchema} ${WebIfcParsing} ${WebIfcUtility} ${WebIfcGeometry} ${WebIfcTestingMain} "./test/io_helpers.cpp")
-	param_setter(web-ifc)
-	target_include_directories(web-ifc PUBLIC ${tinycpptest_SOURCE_DIR}/Sources)
-	#comment these to prevent debug files being generated
-	if (NOT RELEASE)
-		target_compile_options(web-ifc PUBLIC "-DCSG_DEBUG_OUTPUT")
-		target_compile_options(web-ifc PUBLIC "-DDEBUG_DUMP_SVG")
-	endif()
-	
-	add_executable (ifc-geom-server ${WebIfcManager} ${WebIfcSchema} ${WebIfcParsing} ${WebIfcUtility} ${WebIfcGeometry} ${IfcGeomServerMain} "./test/io_helpers.cpp")
-	param_setter(ifc-geom-server)
-	
-endif()
+add_executable (ifc-geom-server ${WebIfcManager} ${WebIfcSchema} ${WebIfcParsing} ${WebIfcUtility} ${WebIfcGeometry} ${IfcGeomServerMain} "./test/io_helpers.cpp")
+param_setter(ifc-geom-server)
