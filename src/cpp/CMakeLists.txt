@@ -1,9 +1,9 @@
-#set up cmake to download the external projects
+# set up cmake to download the external projects
 include(FetchContent)
 cmake_policy(SET CMP0054 NEW)
-cmake_minimum_required (VERSION 3.18)
+cmake_minimum_required(VERSION 3.18)
 
-if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
 	message("Building In Debug Mode")
 	set(RELEASE false)
 	set(DEBUG_FLAG "-g")
@@ -12,13 +12,13 @@ else()
 	set(RELEASE true)
 endif()
 
-project (web-ifc LANGUAGES CXX) 
-enable_testing ()
+project(web-ifc LANGUAGES CXX)
+enable_testing()
 
-set (CMAKE_CXX_STANDARD 20)
-set (CMAKE_CXX_STANDARD_REQUIRED ON)
-set (CMAKE_CXX_EXTENSIONS OFF)
-set_property (GLOBAL PROPERTY USE_FOLDERS ON)
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 #collect source files
 file (GLOB WebIfcParsing parsing/*.cpp)
@@ -32,14 +32,29 @@ file (GLOB WebIfcTestSourceFiles test/*.cpp)
 file (GLOB WebIfcTestingMain web-ifc-test.cpp)
 file (GLOB IfcGeomServerMain IfcGeomServer.cpp)
 
-#download the external projects and save their paths
+# Print the contents of WebIfcGeometry
+message("Contents of WebIfcGeometry:")
+
+foreach(file ${WebIfcGeometry})
+	message("${file}")
+endforeach()
+
+# Print the contents of WebIfcGeometryH
+message("Contents of WebIfcGeometryH:")
+
+foreach(file ${WebIfcGeometryH})
+	message("${file}")
+endforeach()
+
+# download the external projects and save their paths
 Message("Downloading FastFloat")
 FetchContent_Declare(fastfloat GIT_REPOSITORY "https://github.com/fastfloat/fast_float" GIT_TAG "2b2395f9ac836ffca6404424bcc252bff7aa80e4" SOURCE_SUBDIR "../")
 FetchContent_MakeAvailable(fastfloat)
 FetchContent_GetProperties(fastfloat)
 
 Message("Downloading TinyNURBS")
-#FetchContent_Declare(tinynurbs GIT_REPOSITORY "https://github.com/pradeep-pyro/tinynurbs" GIT_TAG "2fc6562d71665312c6298f7c340bace1bcf1b7a1" SOURCE_SUBDIR "../")
+
+# FetchContent_Declare(tinynurbs GIT_REPOSITORY "https://github.com/pradeep-pyro/tinynurbs" GIT_TAG "2fc6562d71665312c6298f7c340bace1bcf1b7a1" SOURCE_SUBDIR "../")
 FetchContent_Declare(tinynurbs GIT_REPOSITORY "https://github.com/QuimMoya/tinynurbs" GIT_TAG "47115cd9b6e922b27bbc4ab01fdeac2e9ea597a4" SOURCE_SUBDIR "../")
 FetchContent_MakeAvailable(tinynurbs)
 FetchContent_GetProperties(tinynurbs)
@@ -61,6 +76,7 @@ FetchContent_GetProperties(earcut)
 
 Message("Downloading CDT")
 FetchContent_Declare(cdt GIT_REPOSITORY "https://github.com/artem-ogre/CDT" GIT_TAG "4d0c9026b8ec846fe544897e7111f8f9080d5f8a" SOURCE_SUBDIR "../")
+
 # FetchContent_Declare(cdt GIT_REPOSITORY "https://github.com/artem-ogre/CDT" GIT_TAG "9d99b32ae56b26cd2781678dc4405c98b8679a9f" SOURCE_SUBDIR "../")
 FetchContent_MakeAvailable(cdt)
 FetchContent_GetProperties(cdt)
@@ -71,6 +87,7 @@ FetchContent_MakeAvailable(spdlog)
 FetchContent_GetProperties(spdlog)
 
 Message("Downloading FUZZY")
+
 # using a custom version of fuzzy-bools to silence some debug printf from the library that pollutes the output of the executables
 # FetchContent_Declare(fuzzy GIT_REPOSITORY "https://github.com/CBenghi/fuzzy-bools" GIT_TAG "07faaad8cae623dd634b1c09b4b37b44bf645781" SOURCE_SUBDIR "../")
 # FetchContent_Declare(fuzzy GIT_REPOSITORY "https://github.com/tomvandig/fuzzy-bools" GIT_TAG "a52c0f0c0667b7c875ae44e91e63a33c1813be64" SOURCE_SUBDIR "../")
@@ -78,15 +95,15 @@ Message("Downloading FUZZY")
 FetchContent_Declare(fuzzy GIT_REPOSITORY "https://github.com/QuimMoya/fuzzy-bools" GIT_TAG "2cf2885065dcf5359dc42b9934cd7d0acb62f431" SOURCE_SUBDIR "../")
 FetchContent_MakeAvailable(fuzzy)
 FetchContent_GetProperties(fuzzy)
-file (RENAME ${fuzzy_SOURCE_DIR}/src ${fuzzy_SOURCE_DIR}/fuzzy RESULT result) # specifying 'result' continues even if rename was already performed
-file (GLOB FuzzyHeaders ${fuzzy_SOURCE_DIR}/fuzzy/*.h)
+file(RENAME ${fuzzy_SOURCE_DIR}/src ${fuzzy_SOURCE_DIR}/fuzzy RESULT result) # specifying 'result' continues even if rename was already performed
+file(GLOB FuzzyHeaders ${fuzzy_SOURCE_DIR}/fuzzy/*.h)
 message(${WebIfcGeometryH})
- 
+
 Message("Downloads Finished")
 
 function(PARAM_SETTER THE_EXECUTABLE)
-    target_include_directories(${THE_EXECUTABLE} PUBLIC ${tinynurbs_SOURCE_DIR}/include)
-    target_include_directories(${THE_EXECUTABLE} PUBLIC ${fastfloat_SOURCE_DIR}/include)
+	target_include_directories(${THE_EXECUTABLE} PUBLIC ${tinynurbs_SOURCE_DIR}/include)
+	target_include_directories(${THE_EXECUTABLE} PUBLIC ${fastfloat_SOURCE_DIR}/include)
 	target_include_directories(${THE_EXECUTABLE} PUBLIC ${cdt_SOURCE_DIR}/CDT/include)
 	target_include_directories(${THE_EXECUTABLE} PUBLIC ${glm_SOURCE_DIR}/)
 	target_include_directories(${THE_EXECUTABLE} PUBLIC ${glm_SOURCE_DIR}/glm)
@@ -94,16 +111,18 @@ function(PARAM_SETTER THE_EXECUTABLE)
 	target_include_directories(${THE_EXECUTABLE} PUBLIC ${fuzzy_SOURCE_DIR}/)
 	target_include_directories(${THE_EXECUTABLE} PUBLIC ${spdlog_SOURCE_DIR}/include)
 
-	if (NOT MSVC)
+	if(NOT MSVC)
 		target_compile_options(${THE_EXECUTABLE} PUBLIC "-Wall")
 		target_compile_options(${THE_EXECUTABLE} PUBLIC "-Wextra")
 		target_compile_options(${THE_EXECUTABLE} PUBLIC "-Wpedantic")
 		target_compile_options(${THE_EXECUTABLE} PUBLIC "-pedantic")
 		target_compile_options(${THE_EXECUTABLE} PUBLIC "-std=c++20")
-		if (EMSCRIPTEN)
+
+		if(EMSCRIPTEN)
 			target_compile_options(${THE_EXECUTABLE} PUBLIC "-fexperimental-library")
 		endif()
-		if (RELEASE)
+
+		if(RELEASE)
 			target_compile_options(${THE_EXECUTABLE} PUBLIC "-O3")
 		endif()
 	else()
