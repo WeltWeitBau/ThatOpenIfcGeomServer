@@ -623,7 +623,7 @@ int main() {
 			IfcModel m;
 
 #ifdef STANDALONE_TEST
-			std::ifstream fileStream("C:/Users/andreas/Downloads/Tür_3.ifc");
+			std::ifstream fileStream("C:/Users/andreas/Downloads/Tï¿½r_3.ifc");
 			if (fileStream.is_open()) {
 				m.read(fileStream);
 			}
@@ -651,7 +651,7 @@ int main() {
 
 			auto defaultColor = new glm::dvec4(-1.0);
 
-			geometryProcessor = new webifc::geometry::IfcGeometryProcessor(*loader, schemaManager, set.CIRCLE_SEGMENTS, set.COORDINATE_TO_ORIGIN, set.OPTIMIZE_PROFILES, false);
+			geometryProcessor = new webifc::geometry::IfcGeometryProcessor(*loader, schemaManager, set.CIRCLE_SEGMENTS, set.COORDINATE_TO_ORIGIN, false);
 			geometryProcessor->SetTransformation(reverseNormalizeIfc);
 			geometryProcessor->SetDefaultColor(defaultColor);
 

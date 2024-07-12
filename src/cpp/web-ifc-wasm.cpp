@@ -26,6 +26,10 @@ int CreateModel(webifc::manager::LoaderSettings settings) {
     return manager.CreateModel(settings);
 }
 
+void CloseAllModels() {
+    return manager.CloseAllModels();
+}
+
 int OpenModel(webifc::manager::LoaderSettings settings, emscripten::val callback)
 {
     auto modelID = manager.CreateModel(settings);
@@ -720,7 +724,6 @@ EMSCRIPTEN_BINDINGS(my_module) {
         ;
 
     emscripten::value_object<webifc::manager::LoaderSettings>("LoaderSettings")
-        .field("OPTIMIZE_PROFILES", &webifc::manager::LoaderSettings::OPTIMIZE_PROFILES)
         .field("COORDINATE_TO_ORIGIN", &webifc::manager::LoaderSettings::COORDINATE_TO_ORIGIN)
         .field("CIRCLE_SEGMENTS", &webifc::manager::LoaderSettings::CIRCLE_SEGMENTS)
         .field("TAPE_SIZE", &webifc::manager::LoaderSettings::TAPE_SIZE)
@@ -835,4 +838,5 @@ EMSCRIPTEN_BINDINGS(my_module) {
     emscripten::function("GetTypeCodeFromName", &GetTypeCodeFromName);
     emscripten::function("IsIfcElement", &IsIfcElement);
     emscripten::function("GetVersion", &GetVersion);
+    emscripten::function("CloseAllModels", &CloseAllModels);
 }

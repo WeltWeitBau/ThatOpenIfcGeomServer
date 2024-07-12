@@ -16,6 +16,10 @@ webifc::manager::ModelManager::ModelManager(bool _mt_enabled) {
 }
 
 webifc::manager::ModelManager::~ModelManager() {
+    CloseAllModels();
+}
+
+void webifc::manager::ModelManager::CloseAllModels() {
     for (size_t i=0; i < _loaders.size();i++) {
         if (!IsModelOpen(i)) continue;
         delete _loaders[i];
@@ -23,7 +27,7 @@ webifc::manager::ModelManager::~ModelManager() {
     }
     _loaders.clear();
     _geometryProcessors.clear();
-}
+} 
 
 void webifc::manager::ModelManager::SetLogLevel(uint8_t levelArg) {
     spdlog::set_level((spdlog::level::level_enum)levelArg);
@@ -33,7 +37,7 @@ void webifc::manager::ModelManager::SetLogLevel(uint8_t levelArg) {
 webifc::geometry::IfcGeometryProcessor* webifc::manager::ModelManager::GetGeometryProcessor(uint32_t modelID) {
     if (!IsModelOpen(modelID)) return {};
     if (!_geometryProcessors.contains(modelID))  {
-        webifc::geometry::IfcGeometryProcessor* processor = new webifc::geometry::IfcGeometryProcessor(*GetIfcLoader(modelID),_schemaManager,GetSettings(modelID).CIRCLE_SEGMENTS,GetSettings(modelID).COORDINATE_TO_ORIGIN, GetSettings(modelID).OPTIMIZE_PROFILES);
+        webifc::geometry::IfcGeometryProcessor* processor = new webifc::geometry::IfcGeometryProcessor(*GetIfcLoader(modelID),_schemaManager,GetSettings(modelID).CIRCLE_SEGMENTS,GetSettings(modelID).COORDINATE_TO_ORIGIN);
         _geometryProcessors[modelID]=processor;
     }
     return _geometryProcessors.at(modelID);

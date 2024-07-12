@@ -16,7 +16,6 @@ namespace webifc::manager {
     
     struct LoaderSettings
     {
-        bool OPTIMIZE_PROFILES = false;
         bool COORDINATE_TO_ORIGIN = false;
         uint16_t CIRCLE_SEGMENTS = 12;
         uint32_t TAPE_SIZE = 67108864 ; // probably no need for anyone other than web-ifc devs to change this
@@ -36,6 +35,7 @@ namespace webifc::manager {
             void CloseModel(uint32_t modelID);
             uint32_t CreateModel(LoaderSettings settings);
             void SetLogLevel(uint8_t levelArg);
+            void CloseAllModels();
         private: 
             const webifc::schema::IfcSchemaManager _schemaManager; 
             std::vector<webifc::parsing::IfcLoader*> _loaders;

@@ -54,7 +54,6 @@ export const INTEGER = 10;
 
 /**
  * Settings for the IFCLoader
- * @property {boolean} OPTIMIZE_PROFILES - If true, the model will return all circular and rectangular profiles as a single geometry.
  * @property {boolean} COORDINATE_TO_ORIGIN - If true, the model will be translated to the origin.
  * @property {number} CIRCLE_SEGMENTS - Number of segments for circles. 
  * @property {number} MEMORY_LIMIT - The amount of memory to be reserved for storing IFC data in memory
@@ -62,7 +61,6 @@ export const INTEGER = 10;
  * @property {number} LINEWRITER_BUFFER - The number of lines to write to memory at a time when writing an IFC file.
  */
 export interface LoaderSettings {
-    OPTIMIZE_PROFILES?: boolean;
     COORDINATE_TO_ORIGIN?: boolean;
     CIRCLE_SEGMENTS?: number;
     MEMORY_LIMIT?: number;
@@ -183,7 +181,7 @@ export class IfcAPI {
      * you override the path from which the wasm module is loaded.
      */
     async Init(customLocateFileHandler?: LocateFileHandlerFn) {
-        if (WebIFCWasm) {
+        if (WebIFCWasm && this.wasmModule == undefined) {
             let locateFileHandler: LocateFileHandlerFn = (path, prefix) => {
                 // when the wasm module requests the wasm file, we redirect to include the user specified path
                 if (path.endsWith(".wasm")) {
@@ -227,7 +225,6 @@ export class IfcAPI {
 
     private CreateSettings(settings?: LoaderSettings) {
         let s: LoaderSettings = {
-            OPTIMIZE_PROFILES: false,
             COORDINATE_TO_ORIGIN: false,
             CIRCLE_SEGMENTS: 12,
             TAPE_SIZE: 67108864,
@@ -703,7 +700,7 @@ export class IfcAPI {
 	 * @param modelID model ID
 	 * @returns vector of all line IDs
 	 */
-    GetAllLines(modelID: Number): Vector<number> {
+    GetAllLines(modelID: number): Vector<number> {
         let lineIds = this.wasmModule.GetAllLines(modelID);
         lineIds[Symbol.iterator] = function*() { for (let i=0; i < lineIds.size();i++) yield lineIds.get(i); }
         return lineIds;
@@ -714,7 +711,7 @@ export class IfcAPI {
      * @param modelID model ID
      * @returns Lists with the cross sections curves as sets of points
      */
-    GetAllCrossSections2D(modelID: Number): Array<CrossSection>
+    GetAllCrossSections2D(modelID: number): Array<CrossSection>
     {
         const crossSections =  this.wasmModule.GetAllCrossSections(modelID,2);
         const crossSectionList = [];
@@ -734,7 +731,7 @@ export class IfcAPI {
                 curveList.push(newCurve);
                 expressList.push(alignment.expressID.get(j));
             }
-            const align = { origin, curves: curveList, expressID: expressList };
+            const align = { FlatCoordinationMatrix: this.GetCoordinationMatrix(modelID), curves: curveList, expressID: expressList };
             crossSectionList.push(align);
         }
         return crossSectionList;
@@ -745,7 +742,7 @@ export class IfcAPI {
      * @param modelID model ID
      * @returns Lists with the cross sections curves as sets of points
      */
-    GetAllCrossSections3D(modelID: Number): Array<CrossSection>
+    GetAllCrossSections3D(modelID: number): Array<CrossSection>
     {
         const crossSections =  this.wasmModule.GetAllCrossSections(modelID,3);
         const crossSectionList = [];
@@ -765,7 +762,7 @@ export class IfcAPI {
                 curveList.push(newCurve);
                 expressList.push(alignment.expressID.get(j));
             }
-            const align = { origin, curves: curveList, expressID: expressList };
+            const align = { FlatCoordinationMatrix: this.GetCoordinationMatrix(modelID), curves: curveList, expressID: expressList };
             crossSectionList.push(align);
         }
         return crossSectionList;
@@ -776,8 +773,10 @@ export class IfcAPI {
      * @param modelID model ID
      * @returns Lists with horizontal and vertical curves as sets of points
      */
-    GetAllAlignments(modelID: Number): any {
+    GetAllAlignments(modelID: number): any {
         const alignments = this.wasmModule.GetAllAlignments(modelID);
+        console.log("RAW");
+        console.log(alignments);
         const alignmentList = [];
         for (let i = 0; i < alignments.size(); i++) {
           const alignment = alignments.get(i);
@@ -887,7 +886,7 @@ export class IfcAPI {
           }
     
           const align = {
-            origin,
+            FlatCoordinationMatrix: this.GetCoordinationMatrix(modelID),
             horizontal: horList,
             vertical: verList,
             curve3D: curve3DList,
@@ -938,6 +937,14 @@ export class IfcAPI {
     CloseModel(modelID: number) {
         this.ifcGuidMap.delete(modelID);
         this.wasmModule.CloseModel(modelID);
+    }
+
+    /**
+     * Closes all models and frees all related memory
+    */
+    Dispose() {
+        this.ifcGuidMap.clear()
+        this.wasmModule.CloseAllModels();
     }
 
     /**
