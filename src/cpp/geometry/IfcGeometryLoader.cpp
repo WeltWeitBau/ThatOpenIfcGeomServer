@@ -3457,6 +3457,9 @@ IfcProfile IfcGeometryLoader::GetProfile(uint32_t expressID) const
         std::string_view unitType = _loader.GetStringArgument();
         _loader.MoveToArgumentOffset(unitRef, 3);
         auto unitRefLine = _loader.GetRefArgument();
+        if (unitRefLine == 0) {
+            continue;
+        }
 
         _loader.MoveToArgumentOffset(unitRefLine, 1);
         auto ratios = _loader.GetSetArgument();

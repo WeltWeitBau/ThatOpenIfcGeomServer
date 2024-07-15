@@ -651,7 +651,7 @@ int main() {
 
 			auto defaultColor = new glm::dvec4(-1.0);
 
-			geometryProcessor = new webifc::geometry::IfcGeometryProcessor(*loader, schemaManager, set.CIRCLE_SEGMENTS, set.COORDINATE_TO_ORIGIN, false);
+			geometryProcessor = new webifc::geometry::IfcGeometryProcessor(*loader, schemaManager, set.CIRCLE_SEGMENTS, set.COORDINATE_TO_ORIGIN, true);
 			geometryProcessor->SetTransformation(reverseNormalizeIfc);
 			geometryProcessor->SetDefaultColor(defaultColor);
 
