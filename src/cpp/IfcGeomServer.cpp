@@ -355,6 +355,20 @@ private:
 		swrite(s, std::string((char*)matrix_array, 16 * sizeof(double)));
 	}
 
+	void fixNaN(glm::vec4* pos) {
+		if (isnan(pos->x)) {
+			pos->x = 0;
+		}
+
+		if (isnan(pos->y)) {
+			pos->y = 0;
+		}
+
+		if (isnan(pos->z)) {
+			pos->z = 0;
+		}
+	}
+
 protected:
 	void read_content(std::istream& /*s*/) {}
 	void write_content(std::ostream& s) {
@@ -397,8 +411,11 @@ protected:
 			for (int i = 0; i < vertexData.size(); i += 6) {
 				glm::vec4 position(vertexData.at(i), vertexData.at(i + 1), vertexData.at(i + 2), 1.0f);
 				glm::vec4 normal(vertexData.at(i + 3), vertexData.at(i + 4), vertexData.at(i + 5), 1.0f);
-				auto untransformedPosition = combinedTransformation * position;
-				auto untransformedNormal = combinedNormalTransformation * normal;
+				glm::vec4 untransformedPosition = combinedTransformation * position;
+				glm::vec4 untransformedNormal = combinedNormalTransformation * normal;
+
+				// TODO: Temporary fix until the underlying issue gets resolved. see http://bitnami/issues/8199
+				fixNaN(&untransformedPosition);
 
 				vertices.push_back(untransformedPosition.x);
 				vertices.push_back(untransformedPosition.y);
@@ -623,7 +640,7 @@ int main() {
 			IfcModel m;
 
 #ifdef STANDALONE_TEST
-			std::ifstream fileStream("C:/Users/andreas/Downloads/T�r_3.ifc");
+			std::ifstream fileStream("C:/Users/andreas/Downloads/NaN2.ifc");
 			if (fileStream.is_open()) {
 				m.read(fileStream);
 			}
