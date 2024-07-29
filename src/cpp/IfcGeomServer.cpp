@@ -356,15 +356,15 @@ private:
 	}
 
 	void fixNaN(glm::vec4* pos) {
-		if (isnan(pos->x)) {
+		if (std::isnan(pos->x)) {
 			pos->x = 0;
 		}
 
-		if (isnan(pos->y)) {
+		if (std::isnan(pos->y)) {
 			pos->y = 0;
 		}
 
-		if (isnan(pos->z)) {
+		if (std::isnan(pos->z)) {
 			pos->z = 0;
 		}
 	}
