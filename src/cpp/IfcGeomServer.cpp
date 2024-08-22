@@ -355,7 +355,7 @@ private:
 		swrite(s, std::string((char*)matrix_array, 16 * sizeof(double)));
 	}
 
-	void fixNaN(glm::vec4* pos) {
+	void fixNaN(glm::dvec4* pos) {
 		if (std::isnan(pos->x)) {
 			pos->x = 0;
 		}
@@ -409,10 +409,10 @@ protected:
 			auto indexOffset = vertices.size() / 3;
 
 			for (int i = 0; i < vertexData.size(); i += 6) {
-				glm::vec4 position(vertexData.at(i), vertexData.at(i + 1), vertexData.at(i + 2), 1.0f);
-				glm::vec4 normal(vertexData.at(i + 3), vertexData.at(i + 4), vertexData.at(i + 5), 1.0f);
-				glm::vec4 untransformedPosition = combinedTransformation * position;
-				glm::vec4 untransformedNormal = combinedNormalTransformation * normal;
+				glm::dvec4 position(vertexData.at(i), vertexData.at(i + 1), vertexData.at(i + 2), 1.0f);
+				glm::dvec4 normal(vertexData.at(i + 3), vertexData.at(i + 4), vertexData.at(i + 5), 1.0f);
+				glm::dvec4 untransformedPosition = combinedTransformation * position;
+				glm::dvec4 untransformedNormal = combinedNormalTransformation * normal;
 
 				// TODO: Temporary fix until the underlying issue gets resolved. see http://bitnami/issues/8199
 				fixNaN(&untransformedPosition);
