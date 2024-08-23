@@ -75,17 +75,12 @@ namespace webifc::geometry
         return _coordinationMatrix;
     }
 
-    IfcComposedMesh IfcGeometryProcessor::GetMesh(uint32_t expressID, uint32_t nestLevel)
-    {
-        spdlog::debug("[GetMesh({})]",expressID);
-        auto lineType = _loader.GetLineType(expressID);
-
+    std::optional<glm::dvec4> IfcGeometryProcessor::GetItemColor(uint32_t expressID) {
         std::optional<glm::dvec4> styledItemColor;
-        auto &styledItems = _geometryLoader.GetStyledItems();
-        auto &relMaterials = _geometryLoader.GetRelMaterials();
-        auto &materialDefinitions = _geometryLoader.GetMaterialDefinitions();
-        auto relVoids = _geometryLoader.GetRelVoids();
-        auto &relElementAggregates = _geometryLoader.GetRelElementAggregates();
+
+        auto& styledItems = _geometryLoader.GetStyledItems();
+        auto& relMaterials = _geometryLoader.GetRelMaterials();
+        auto& materialDefinitions = _geometryLoader.GetMaterialDefinitions();
 
         auto styledItem = styledItems.find(expressID);
         if (styledItem != styledItems.end())
@@ -104,12 +99,12 @@ namespace webifc::geometry
             auto material = relMaterials.find(expressID);
             if (material != relMaterials.end())
             {
-                auto &materials = material->second;
+                auto& materials = material->second;
                 for (auto item : materials)
                 {
                     if (materialDefinitions.count(item.second) != 0)
                     {
-                        auto &defs = materialDefinitions.at(item.second);
+                        auto& defs = materialDefinitions.at(item.second);
                         for (auto def : defs)
                         {
                             styledItemColor = _geometryLoader.GetColor(def.second);
@@ -129,13 +124,28 @@ namespace webifc::geometry
             }
         }
 
+        return styledItemColor;
+    }
+
+    IfcComposedMesh IfcGeometryProcessor::GetMesh(uint32_t expressID, uint32_t nestLevel)
+    {
+        spdlog::debug("[GetMesh({})]",expressID);
+        auto lineType = _loader.GetLineType(expressID);
+
+        auto relVoids = _geometryLoader.GetRelVoids();
+        auto &relElementAggregates = _geometryLoader.GetRelElementAggregates();
+
+        std::optional<glm::dvec4> styledItemColor = GetItemColor(expressID);
+
         IfcComposedMesh mesh;
+
         mesh.expressID = expressID;
         mesh.hasColor = styledItemColor.has_value();
         if (!styledItemColor)
             mesh.color = _defaultColor; // skip color, if none is found
         else
             mesh.color = styledItemColor.value();
+
         mesh.transformation = glm::dmat4(1);
 
         if (_schemaManager.IsIfcElement(lineType))
@@ -498,6 +508,13 @@ namespace webifc::geometry
                     temp.expressID = shellRef;
                     temp.hasGeometry = true;
                     temp.transformation = glm::dmat4(1);
+
+                    std::optional<glm::dvec4> styledBrepColor = GetItemColor(shellRef);
+                    if (styledBrepColor && styledBrepColor.has_value()) {
+                        temp.hasColor = true;
+                        temp.color = styledBrepColor.value();
+                    }
+
                     mesh.children.push_back(temp);
                 }
 

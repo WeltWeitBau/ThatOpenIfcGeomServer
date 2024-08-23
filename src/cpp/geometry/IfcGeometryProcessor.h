@@ -60,6 +60,7 @@ namespace webifc::geometry
         IfcGeometry predefinedCylinder;
         IfcGeometry predefinedCube;
         glm::dvec4 _defaultColor = glm::dvec4(1.0);
+        std::optional<glm::dvec4> GetItemColor(uint32_t expressID);
   };
   
 }
