@@ -775,8 +775,6 @@ export class IfcAPI {
      */
     GetAllAlignments(modelID: number): any {
         const alignments = this.wasmModule.GetAllAlignments(modelID);
-        console.log("RAW");
-        console.log(alignments);
         const alignmentList = [];
         for (let i = 0; i < alignments.size(); i++) {
           const alignment = alignments.get(i);
@@ -940,11 +938,12 @@ export class IfcAPI {
     }
 
     /**
-     * Closes all models and frees all related memory
+     * Closes all models and frees all related memory. Please note that after calling this you must call Init() again to ensure web-ifc is in a working state.
     */
     Dispose() {
         this.ifcGuidMap.clear()
         this.wasmModule.CloseAllModels();
+        this.wasmModule = undefined;
     }
 
     /**

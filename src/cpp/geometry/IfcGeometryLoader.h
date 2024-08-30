@@ -51,6 +51,7 @@ namespace webifc::geometry
     bool GetColor(const uint32_t expressID, const glm::dvec4 &outputColor) const; 
     const std::unordered_map<uint32_t, std::vector<uint32_t>> &GetRelVoids() const;
     const std::unordered_map<uint32_t, std::vector<uint32_t>> &GetRelVoidRels() const;
+    const std::unordered_map<uint32_t, std::vector<uint32_t>> &GetRelNests() const;
     const std::unordered_map<uint32_t, std::vector<uint32_t>> &GetRelAggregates() const;
     const std::unordered_map<uint32_t, std::vector<uint32_t>> &GetRelElementAggregates() const;
     const std::unordered_map<uint32_t, std::vector<std::pair<uint32_t, uint32_t>>> &GetStyledItems() const;
@@ -58,6 +59,7 @@ namespace webifc::geometry
     const std::unordered_map<uint32_t, std::vector<std::pair<uint32_t, uint32_t>>> &GetMaterialDefinitions() const;
     double GetLinearScalingFactor() const;
     std::string GetAngleUnits() const;
+    void Clear() const;
   private:
     IfcCurve GetAlignmentCurve(uint32_t expressID, uint32_t parentExpressID = -1) const;
     IfcProfile GetProfileByLine(uint32_t expressID) const;
@@ -70,7 +72,8 @@ namespace webifc::geometry
     const webifc::parsing::IfcLoader &_loader;
     const webifc::schema::IfcSchemaManager &_schemaManager;
     const std::unordered_map<uint32_t, std::vector<uint32_t>> _relVoidRel;
-    const std::unordered_map<uint32_t, std::vector<uint32_t>> _relVoids;
+    const std::unordered_map<uint32_t, std::vector<uint32_t>> _relVoids; 
+    const std::unordered_map<uint32_t, std::vector<uint32_t>> _relNests;
     const std::unordered_map<uint32_t, std::vector<uint32_t>> _relAggregates;
     const std::unordered_map<uint32_t, std::vector<uint32_t>> _relElementAggregates;
     const std::unordered_map<uint32_t, std::vector<std::pair<uint32_t, uint32_t>>> _styledItems;
@@ -86,6 +89,7 @@ namespace webifc::geometry
     mutable std::vector<uint32_t> LocalcurvesIndices;
     std::unordered_map<uint32_t, std::vector<uint32_t>> PopulateRelVoidsMap();
     std::unordered_map<uint32_t, std::vector<uint32_t>> PopulateRelVoidsRelMap();
+    std::unordered_map<uint32_t, std::vector<uint32_t>> PopulateRelNestsMap();
     std::unordered_map<uint32_t, std::vector<uint32_t>> PopulateRelAggregatesMap();
     std::unordered_map<uint32_t, std::vector<uint32_t>> PopulateRelElementAggregatesMap();
     std::unordered_map<uint32_t, std::vector<std::pair<uint32_t, uint32_t>>> PopulateStyledItemMap();
@@ -93,6 +97,7 @@ namespace webifc::geometry
     std::unordered_map<uint32_t, std::vector<std::pair<uint32_t, uint32_t>>> PopulateMaterialDefinitionsMap();
     void ReadLinearScalingFactor();
     double ConvertPrefix(const std::string_view &prefix);
+    mutable std::unordered_map<uint32_t, glm::dmat4> _expressIDToPlacement;
   };
   
 }

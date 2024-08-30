@@ -18,7 +18,6 @@
 
 [![NPM Package][npm]][npm-url]
 [![NPM Package][npm-downloads]][npm-url]
-[![Tests](https://github.com/ThatOpen/engine_components/actions/workflows/tests.yml/badge.svg)](https://github.com/ThatOpen/engine_components/actions/workflows/tests.yaml)
 
 **web-ifc** is a javascript library to read and write ifc files, at native speeds. **web-ifc** is part of the [That Open Company](https://thatopen.com) project, which aims to lower the threshold for developing open BIM applications.
 
@@ -58,7 +57,7 @@ See [examples](https://github.com/ThatOpen/engine_web-ifc/tree/main/examples/usa
 
 ## Current Build
 
-The current live build of web-ifc is avaialble [here](https://thatopen.github.io/engine_web-ifc/build.zip). Using this allows you to test newest fixes before we make a release. If you wish to use this version then download the zip file and place the contents of the dist folder manually into your node_modules/web-ifc folder. I.e if you are using web-ifc-three then it will be node_modules/web-ifc-three/node_modules/web-ifc. Please note you must replace the javascript and the WASM.
+The current live build of web-ifc is available [here](https://thatopen.github.io/engine_web-ifc/build.zip). Using this allows you to test newest fixes before we make a release. If you wish to use this version then download the zip file and place the contents of the dist folder manually into your node_modules/web-ifc folder. I.e if you are using web-ifc-three then it will be node_modules/web-ifc-three/node_modules/web-ifc. Please note you must replace the javascript and the WASM.
 
 ## Requirements
 

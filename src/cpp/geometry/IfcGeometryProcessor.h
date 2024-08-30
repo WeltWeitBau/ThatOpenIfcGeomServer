@@ -22,6 +22,17 @@ namespace webifc::geometry
 
   // this class performs the processing of raw geometry data from the geometry loader to produce meshes
 
+  class booleanManager
+  {
+    public:
+      IfcGeometry BoolProcess(const std::vector<IfcGeometry> &firstGeoms, std::vector<IfcGeometry> &secondGeoms, std::string op);
+    private:
+      fuzzybools::Geometry convertToEngine(Geometry geom);
+      IfcGeometry convertToWebIfc(fuzzybools::Geometry geom);
+      IfcGeometry Union(IfcGeometry firstOperator, IfcGeometry secondOperator);
+      IfcGeometry Subtract(IfcGeometry firstOperator, IfcGeometry secondOperator);
+  };
+
   class IfcGeometryProcessor 
   {
       public:
@@ -46,6 +57,7 @@ namespace webifc::geometry
         const IfcGeometryLoader _geometryLoader;
         glm::dmat4 _transformation = glm::dmat4(1.0);
         const parsing::IfcLoader &_loader;
+        booleanManager boolEngine;
         const schema::IfcSchemaManager &_schemaManager;
         bool _isCoordinated = false;
         bool _coordinateToOrigin;
@@ -62,5 +74,4 @@ namespace webifc::geometry
         glm::dvec4 _defaultColor = glm::dvec4(1.0);
         std::optional<glm::dvec4> GetItemColor(uint32_t expressID);
   };
-  
 }
