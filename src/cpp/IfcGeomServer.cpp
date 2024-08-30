@@ -1,5 +1,3 @@
-//#define STANDALONE_TEST
-
 #include <iostream>
 #include <sstream>
 #include <fstream>
@@ -88,7 +86,7 @@ void swrite(std::ostream& s, std::string t) {
 
 template <typename T, typename U>
 void swrite_array(std::ostream& s, const std::vector<U>& us) {
-#ifdef STANDALONE_TEST
+#ifdef _DEBUG
 	std::cout << std::endl;
 	for (auto value : us) {
 		std::cout << value << ", ";
@@ -399,31 +397,33 @@ protected:
 		std::vector<int32_t> color_indices;
 		uint32_t colorIndex = 0;
 
+		auto scalingFactor = geometryProcessor->GetLoader().GetLinearScalingFactor();
+
 		for (auto &geometry : ifcElement->flatMesh.geometries) {
-			auto currentTransformation = geometry.transformation;
-			auto combinedTransformation = inverseTransformation * currentTransformation;
-			auto combinedNormalTransformation = glm::transpose(glm::inverse(combinedTransformation)); // according to: https://www.scratchapixel.com/lessons/mathematics-physics-for-computer-graphics/geometry/transforming-normals.html
+			auto transformation = getPositionInverseTransformation(&geometry, &inverseTransformation, scalingFactor);
+			auto normalTransformation = glm::transpose(glm::inverse(transformation)); // according to: https://www.scratchapixel.com/lessons/mathematics-physics-for-computer-graphics/geometry/transforming-normals.html
 
 			auto &flatGeom = geometryProcessor->GetGeometry(geometry.geometryExpressID);
 			auto &vertexData = flatGeom.vertexData;
 			auto indexOffset = vertices.size() / 3;
 
 			for (int i = 0; i < vertexData.size(); i += 6) {
-				glm::dvec4 position(vertexData.at(i), vertexData.at(i + 1), vertexData.at(i + 2), 1.0f);
-				glm::dvec4 normal(vertexData.at(i + 3), vertexData.at(i + 4), vertexData.at(i + 5), 1.0f);
-				glm::dvec4 untransformedPosition = combinedTransformation * position;
-				glm::dvec4 untransformedNormal = combinedNormalTransformation * normal;
+				glm::dvec4 untransformedPosition(vertexData.at(i), vertexData.at(i + 1), vertexData.at(i + 2), 1.0f);
+				glm::dvec4 untransformedNormal(vertexData.at(i + 3), vertexData.at(i + 4), vertexData.at(i + 5), 1.0f);
+
+				auto position = transformation * untransformedPosition;
+				auto normal = glm::normalize(normalTransformation * untransformedNormal);
 
 				// TODO: Temporary fix until the underlying issue gets resolved. see http://bitnami/issues/8199
-				fixNaN(&untransformedPosition);
+				fixNaN(&position);
 
-				vertices.push_back(untransformedPosition.x);
-				vertices.push_back(untransformedPosition.y);
-				vertices.push_back(untransformedPosition.z);
+				vertices.push_back(position.x);
+				vertices.push_back(position.y);
+				vertices.push_back(position.z);
 
-				normals.push_back(untransformedNormal.x);
-				normals.push_back(untransformedNormal.y);
-				normals.push_back(untransformedNormal.z);
+				normals.push_back(normal.x);
+				normals.push_back(normal.y);
+				normals.push_back(normal.z);
 			}
 
 			auto color = geometry.color;
@@ -467,15 +467,38 @@ protected:
 		geometryProcessor->Clear();
 	}
 
-	glm::dmat4* extractRotation(glm::dmat4* tranformation) {
-		auto _transformation = *tranformation;
-		auto sx = glm::length(_transformation[0]);
-		auto sy = glm::length(_transformation[1]);
-		auto sz = glm::length(_transformation[2]);
+	glm::dmat4 getPositionInverseTransformation(webifc::geometry::IfcPlacedGeometry* geometry, glm::dmat4* inverseTransformation, double scalingFactor) {
+		auto transformation = geometry->transformation / scalingFactor;
+		transformation[3][3] = 1;
 
-		auto currentRotation = new glm::dmat4(_transformation[0] / sx, _transformation[1] / sy, _transformation[2] / sz, glm::dvec4(0));
+		glm::dmat4 _inverseTransformation = *inverseTransformation;
 
-		return currentRotation;
+		return _inverseTransformation * transformation;
+	}
+
+	void applyMatrix3(glm::dmat4* _matrix, glm::dvec4* vec) {
+		double x = vec->x;
+		double y = vec->y;
+		double z = vec->z;
+
+		glm::dmat4 matrix = *_matrix;
+
+		vec->x = (matrix[0][0] * x + matrix[1][0] * y + matrix[2][0] * z);
+		vec->y = (matrix[0][1] * x + matrix[1][1] * y + matrix[2][1] * z);
+		vec->z = (matrix[0][2] * x + matrix[1][2] * y + matrix[2][2] * z);
+	}
+
+	void applyMatrix(glm::dmat4* _matrix, glm::dvec4* vec) {
+		double x = vec->x;
+		double y = vec->y;
+		double z = vec->z;
+		double w = vec->w;
+
+		glm::dmat4 matrix = *_matrix;
+
+		vec->x = (matrix[0][0] * x + matrix[1][0] * y + matrix[2][0] * z + matrix[3][0] * w);
+		vec->y = (matrix[0][1] * x + matrix[1][1] * y + matrix[2][1] * z + matrix[3][1] * w);
+		vec->z = (matrix[0][2] * x + matrix[1][2] * y + matrix[2][2] * z + matrix[3][2] * w);
 	}
 
 public:
@@ -617,7 +640,7 @@ int main() {
 
 	Hello().write(std::cout);
 
-#ifdef STANDALONE_TEST
+#ifdef _DEBUG
 	std::vector<int32_t> messages;
 	messages.push_back(IFC_MODEL);
 	messages.push_back(GET);
@@ -629,7 +652,7 @@ int main() {
 
 	int exit_code = 0;
 
-#ifdef STANDALONE_TEST
+#ifdef _DEBUG
 	for(int32_t msg_type : messages) {
 #else
 	for (;;) {
@@ -639,8 +662,8 @@ int main() {
 		case IFC_MODEL: {
 			IfcModel m;
 
-#ifdef STANDALONE_TEST
-			std::ifstream fileStream("C:/Users/andreas/Downloads/NaN2.ifc");
+#ifdef _DEBUG
+			std::ifstream fileStream("C:/Users/andreas/Downloads/export-BimViewPlus_Normals_Plate.ifc");
 			if (fileStream.is_open()) {
 				m.read(fileStream);
 			}
@@ -680,7 +703,7 @@ int main() {
 			continue;
 		}
 		case GET: {
-#ifndef STANDALONE_TEST
+#ifndef _DEBUG
 			Get g; g.read(std::cin);
 #endif
 
@@ -708,7 +731,7 @@ int main() {
 			continue;
 		}
 		case NEXT: {
-#ifndef STANDALONE_TEST
+#ifndef _DEBUG
 			Next n; n.read(std::cin);
 #endif
 
