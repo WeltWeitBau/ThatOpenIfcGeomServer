@@ -37,7 +37,6 @@ namespace webifc::geometry
   {
       public:
         IfcGeometryProcessor(const webifc::parsing::IfcLoader &loader,const webifc::schema::IfcSchemaManager &schemaManager,uint16_t circleSegments,bool coordinateToOrigin);
-        IfcGeometryProcessor(const webifc::parsing::IfcLoader& loader, const webifc::schema::IfcSchemaManager& schemaManager, uint16_t circleSegments, bool coordinateToOrigin, bool applyScaling);
         IfcGeometry &GetGeometry(uint32_t expressID);
         IfcGeometryLoader GetLoader() const;
         IfcFlatMesh GetFlatMesh(uint32_t expressID);
