@@ -897,10 +897,11 @@ namespace webifc::geometry
     }
     case schema::IFCCURVESTYLE:
     {
-      _loader.MoveToArgumentOffset(expressID, 3);
-      auto foundColor = GetColor(_loader.GetRefArgument());
-      if (foundColor)
-        return foundColor;
+      // mustn't use curve styles for surfaces!
+      // _loader.MoveToArgumentOffset(expressID, 3);
+      // auto foundColor = GetColor(_loader.GetRefArgument());
+      // if (foundColor)
+      //   return foundColor;
       return {};
     }
     case schema::IFCFILLAREASTYLEHATCHING:
