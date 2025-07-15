@@ -80,9 +80,18 @@ describe('WebIfcApi reading methods', () => {
         ifcApi.FlattenLine(modelID, line);
         expect(line.OwnerHistory.OwningUser).not.toBe(null);
     })
+    test('can generate a guid', () => {
+        const guid: any = ifcApi.CreateIFCGloballyUniqueId(modelID);
+        expect(guid.value).not.toBe(null);
+    })
     test('expect the correct line to be returned', () => {
         const line: any = ifcApi.GetLine(modelID, expressId);
         expect(line.expressID).toEqual(expressId);
+    })
+    test('expect the correct lines to be returned', () => {
+        const lines: any = ifcApi.GetLines(modelID, [14313,9989]);
+        expect(lines[0].expressID).toEqual(14313);
+        expect(lines[1].expressID).toEqual(9989);
     })
     test('IFC Address Parsing', () => {
         const line: any = ifcApi.GetLine(modelID, 14313);
@@ -426,27 +435,21 @@ describe('WebIfcApi known failures', () => {
 
 describe('some use cases', () => {
     test("can write a new property value and read it back in", async () => {
-        async function getFirstStorey(api:any, mId:any) {
-            const storeyIds = await api.GetLineIDsWithType(mId, WebIFC.IFCBUILDINGSTOREY);
-            expect(storeyIds.size()).toBe(2);
-            const storeyId = storeyIds.get(0);
-            const storey = await api.properties.getItemProperties(mId, storeyId);
-            return [storey, storeyId];
-          }
-          let [storey, storeyId] = await getFirstStorey(ifcApi, modelID);
+    
+          let storey = await ifcApi.properties.getItemProperties(modelID, 138);
           const newStoreyName = 'Nivel 1 - Editado'
           storey.LongName.value = newStoreyName;
           ifcApi.WriteLine(modelID, storey);
-          storey = await ifcApi.properties.getItemProperties(modelID, storeyId);
+          storey = await ifcApi.properties.getItemProperties(modelID, 138);
           expect(storey.LongName.value).toBe(newStoreyName);
       
           const writtenData = await ifcApi.SaveModel(modelID);
           let modelId = ifcApi.OpenModel(writtenData);
-          [storey, storeyId] = await getFirstStorey(ifcApi, modelId);
+          storey = await ifcApi.properties.getItemProperties(modelId, 138);
           expect(storey.LongName.value).toBe(newStoreyName);
-    });
-    
+    })
 })
+
 
 describe('creating ifc', () => {
     test('can create new ifc model', () => {

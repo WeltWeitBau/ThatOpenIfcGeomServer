@@ -7,10 +7,10 @@
 #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_OFF
 #include <spdlog/spdlog.h>
 
-#include "parsing/IfcLoader.h"
-#include "schema/IfcSchemaManager.h"
-#include "geometry/IfcGeometryProcessor.h"
-#include "schema/ifc-schema.h"
+#include "web-ifc/parsing/IfcLoader.h"
+#include "web-ifc/schema/IfcSchemaManager.h"
+#include "web-ifc/geometry/IfcGeometryProcessor.h"
+#include "web-ifc/schema/ifc-schema.h"
 
 // NB: Streams are only re-opened as binary when compiled with MSVC currently.
 //     It is unclear what the correct behaviour would be compiled with e.g MinGW
@@ -663,7 +663,7 @@ int main() {
 			IfcModel m;
 
 #ifdef _DEBUG
-			std::ifstream fileStream("C:/Users/andreas/Downloads/export-BimViewPlus_Normals_Plate.ifc");
+			std::ifstream fileStream("C:/Users/andreas/Downloads/SIB_WALL.ifc");
 			if (fileStream.is_open()) {
 				m.read(fileStream);
 			}

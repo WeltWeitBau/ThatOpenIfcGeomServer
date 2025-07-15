@@ -21,11 +21,11 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 #collect source files
-file (GLOB WebIfcParsing parsing/*.cpp)
-file (GLOB_RECURSE WebIfcGeometry geometry/*.cpp)
-file (GLOB_RECURSE WebIfcGeometryH geometry/*.h)
-file (GLOB WebIfcSchema schema/*.cpp)
-file (GLOB WebIfcManager modelmanager/*.cpp)
+file (GLOB WebIfcParsing web-ifc/parsing/*.cpp)
+file (GLOB_RECURSE WebIfcGeometry web-ifc/geometry/*.cpp)
+file (GLOB_RECURSE WebIfcGeometryH web-ifc/geometry/*.h)
+file (GLOB WebIfcSchema web-ifc/schema/*.cpp)
+file (GLOB WebIfcManager web-ifc/modelmanager/*.cpp)
 file (GLOB WebIfcAPI web-ifc-wasm.cpp)
 file (GLOB WebIfcUtility utility/*.cpp)
 file (GLOB WebIfcTestSourceFiles test/*.cpp)
@@ -39,8 +39,6 @@ FetchContent_MakeAvailable(fastfloat)
 FetchContent_GetProperties(fastfloat)
 
 Message("Downloading TinyNURBS")
-
-# FetchContent_Declare(tinynurbs GIT_REPOSITORY "https://github.com/pradeep-pyro/tinynurbs" GIT_TAG "2fc6562d71665312c6298f7c340bace1bcf1b7a1" SOURCE_SUBDIR "../")
 FetchContent_Declare(tinynurbs GIT_REPOSITORY "https://github.com/QuimMoya/tinynurbs" GIT_TAG "47115cd9b6e922b27bbc4ab01fdeac2e9ea597a4" SOURCE_SUBDIR "../")
 FetchContent_MakeAvailable(tinynurbs)
 FetchContent_GetProperties(tinynurbs)
@@ -51,7 +49,7 @@ FetchContent_MakeAvailable(tinycpptest)
 FetchContent_GetProperties(tinycpptest)
 
 Message("Downloading GLM")
-FetchContent_Declare(glm GIT_REPOSITORY "https://github.com/g-truc/glm" GIT_TAG "bf71a834948186f4097caa076cd2663c69a10e1e" SOURCE_SUBDIR "../")
+FetchContent_Declare(glm GIT_REPOSITORY "https://github.com/g-truc/glm" GIT_TAG "0af55ccecd98d4e5a8d1fad7de25ba429d60e863" SOURCE_SUBDIR "../")
 FetchContent_MakeAvailable(glm)
 FetchContent_GetProperties(glm)
 
@@ -62,27 +60,19 @@ FetchContent_GetProperties(earcut)
 
 Message("Downloading CDT")
 FetchContent_Declare(cdt GIT_REPOSITORY "https://github.com/artem-ogre/CDT" GIT_TAG "4d0c9026b8ec846fe544897e7111f8f9080d5f8a" SOURCE_SUBDIR "../")
-
-# FetchContent_Declare(cdt GIT_REPOSITORY "https://github.com/artem-ogre/CDT" GIT_TAG "9d99b32ae56b26cd2781678dc4405c98b8679a9f" SOURCE_SUBDIR "../")
 FetchContent_MakeAvailable(cdt)
 FetchContent_GetProperties(cdt)
 
 Message("Downloading spdlog")
-FetchContent_Declare(spdlog GIT_REPOSITORY "https://github.com/gabime/spdlog" GIT_TAG "7e635fca68d014934b4af8a1cf874f63989352b7" SOURCE_SUBDIR "../")
+FetchContent_Declare(spdlog GIT_REPOSITORY "https://github.com/gabime/spdlog" GIT_TAG "f355b3d58f7067eee1706ff3c801c2361011f3d5" SOURCE_SUBDIR "../")
 FetchContent_MakeAvailable(spdlog)
 FetchContent_GetProperties(spdlog)
 
-#Message("Downloading FUZZY")
-# using a custom version of fuzzy-bools to silence some debug printf from the library that pollutes the output of the executables
-# FetchContent_Declare(fuzzy GIT_REPOSITORY "https://github.com/CBenghi/fuzzy-bools" GIT_TAG "07faaad8cae623dd634b1c09b4b37b44bf645781" SOURCE_SUBDIR "../")
-# FetchContent_Declare(fuzzy GIT_REPOSITORY "https://github.com/tomvandig/fuzzy-bools" GIT_TAG "a52c0f0c0667b7c875ae44e91e63a33c1813be64" SOURCE_SUBDIR "../")
-# @pobr1 Improvement
-# FetchContent_Declare(fuzzy GIT_REPOSITORY "https://github.com/QuimMoya/fuzzy-bools" GIT_TAG "2cf2885065dcf5359dc42b9934cd7d0acb62f431" SOURCE_SUBDIR "../")
-# FetchContent_MakeAvailable(fuzzy)
-# FetchContent_GetProperties(fuzzy)
-# file(RENAME ${fuzzy_SOURCE_DIR}/src ${fuzzy_SOURCE_DIR}/fuzzy RESULT result) # specifying 'result' continues even if rename was already performed
-# file(GLOB FuzzyHeaders ${fuzzy_SOURCE_DIR}/fuzzy/*.h)
-message(${WebIfcGeometryH})
+Message("Downloading StdUUID")
+FetchContent_Declare(stduuid GIT_REPOSITORY "https://github.com/mariusbancila/stduuid" GIT_TAG "3afe7193facd5d674de709fccc44d5055e144d7a" EXCLUDE_FROM_ALL)
+FetchContent_MakeAvailable(stduuid)
+FetchContent_GetProperties(stduuid)
+
 
 Message("Downloads Finished")
 
@@ -93,8 +83,8 @@ function(PARAM_SETTER THE_EXECUTABLE)
 	target_include_directories(${THE_EXECUTABLE} PUBLIC ${glm_SOURCE_DIR}/)
 	target_include_directories(${THE_EXECUTABLE} PUBLIC ${glm_SOURCE_DIR}/glm)
 	target_include_directories(${THE_EXECUTABLE} PUBLIC ${earcut_SOURCE_DIR}/include)
-	target_include_directories(${THE_EXECUTABLE} PUBLIC ${fuzzy_SOURCE_DIR}/)
 	target_include_directories(${THE_EXECUTABLE} PUBLIC ${spdlog_SOURCE_DIR}/include)
+	target_include_directories(${THE_EXECUTABLE} PUBLIC ${stduuid_SOURCE_DIR}/include)
 
 	if(NOT MSVC)
 		target_compile_options(${THE_EXECUTABLE} PUBLIC "-Wall")
@@ -111,6 +101,8 @@ function(PARAM_SETTER THE_EXECUTABLE)
 			target_compile_options(${THE_EXECUTABLE} PUBLIC "-O3")
 		endif()
 	else()
+		# Force UTF-8 for Windows MSVC
+		target_compile_options(${THE_EXECUTABLE} PUBLIC "/utf-8")
 		target_compile_options(${THE_EXECUTABLE} PUBLIC "-std:c++latest")
 	endif()
 endfunction()
