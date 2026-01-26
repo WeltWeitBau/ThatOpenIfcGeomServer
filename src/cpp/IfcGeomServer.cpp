@@ -607,6 +607,13 @@ struct LoaderSettings
 	uint32_t TAPE_SIZE = 67108864; // probably no need for anyone other than web-ifc devs to change this
 	uint32_t MEMORY_LIMIT = 2147483648;
 	uint16_t LINEWRITER_BUFFER = 10000;
+	double TOLERANCE_PLANE_INTERSECTION = 1.0E-04;
+	double TOLERANCE_PLANE_DEVIATION = 1.0E-06;
+	double TOLERANCE_BACK_DEVIATION_DISTANCE = 1.0E-04;
+	double TOLERANCE_INSIDE_OUTSIDE_PERIMETER = 1.0E-10;
+	double TOLERANCE_SCALAR_EQUALITY = 1.0E-04;
+	double PLANE_REFIT_ITERATIONS = 1;
+	double BOOLEAN_UNION_THRESHOLD = 150;
 };
 
 int main() {
@@ -663,7 +670,7 @@ int main() {
 			IfcModel m;
 
 #ifdef _DEBUG
-			std::ifstream fileStream("C:/Users/andreas/Downloads/SIB_WALL.ifc");
+			std::ifstream fileStream("C:/Users/andreas/Downloads/STUCK.ifc");
 			if (fileStream.is_open()) {
 				m.read(fileStream);
 			}
@@ -691,7 +698,16 @@ int main() {
 
 			auto defaultColor = new glm::dvec4(-1.0);
 
-			geometryProcessor = new webifc::geometry::IfcGeometryProcessor(*loader, schemaManager, set.CIRCLE_SEGMENTS, set.COORDINATE_TO_ORIGIN);
+			geometryProcessor = new webifc::geometry::IfcGeometryProcessor(*loader, schemaManager,
+				set.CIRCLE_SEGMENTS,
+				set.COORDINATE_TO_ORIGIN,
+				set.TOLERANCE_PLANE_INTERSECTION,
+				set.TOLERANCE_PLANE_DEVIATION,
+				set.TOLERANCE_BACK_DEVIATION_DISTANCE,
+				set.TOLERANCE_INSIDE_OUTSIDE_PERIMETER,
+				set.TOLERANCE_SCALAR_EQUALITY,
+				set.PLANE_REFIT_ITERATIONS,
+				set.BOOLEAN_UNION_THRESHOLD);
 			geometryProcessor->SetTransformation(reverseNormalizeIfc);
 			geometryProcessor->SetDefaultColor(defaultColor);
 
