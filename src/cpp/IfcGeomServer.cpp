@@ -670,7 +670,7 @@ int main() {
 			IfcModel m;
 
 #ifdef _DEBUG
-			std::ifstream fileStream("C:/Users/andreas/Downloads/STUCK.ifc");
+			std::ifstream fileStream("C:/Users/andreas/Downloads/SOCKEL.ifc");
 			if (fileStream.is_open()) {
 				m.read(fileStream);
 			}

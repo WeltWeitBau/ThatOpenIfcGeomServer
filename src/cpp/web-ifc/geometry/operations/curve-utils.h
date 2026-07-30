@@ -314,6 +314,8 @@ inline IfcCurve Build3DArc3Pt(const glm::dvec3 &p1, const glm::dvec3 &p2, const 
 			c.push_back(point);
 		}
 
+		c.push_back(points.back());
+
 		// TODO: flip triangles?
 		/*
 				if (MatrixFlipsTriangles(placement))
@@ -335,6 +337,9 @@ inline IfcCurve Build3DArc3Pt(const glm::dvec3 &p1, const glm::dvec3 &p2, const 
 			glm::dvec2 point = InterpolateRationalBSplineCurveWithKnots(i, degree, points, knots, weights);
 			c.push_back(point);
 		}
+
+		c.push_back(points.back());
+
 		// TODO: flip triangles?
 		/*
 				if (MatrixFlipsTriangles(placement))
